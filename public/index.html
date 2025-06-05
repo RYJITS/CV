@@ -20,8 +20,21 @@
     <input type="text" id="theme" value="flat">
   </div>
 
+  2ke2yw-codex/2025-06-05
+  <div>
+    <label>Format :</label>
+    <select id="format">
+      <option value="pdf">PDF</option>
+      <option value="html">HTML</option>
+    </select>
+  </div>
+
+  <button id="preview">Prévisualiser</button>
+  <button id="export">Exporter</button>
+
   <button id="preview">Prévisualiser</button>
   <button id="export">Exporter en PDF</button>
+main
 
   <div id="result"></div>
 
@@ -31,6 +44,15 @@
       e.preventDefault();
       const file = document.getElementById('file').files[0];
       if (!file) return;
+2ke2yw-codex/2025-06-05
+      const data = new FormData();
+      data.append('file', file);
+      await fetch('/api/upload', {
+        method: 'POST',
+        body: data
+      });
+      alert('CV importé');
+
       const json = await file.text();
       await fetch('/api/upload', {
         method: 'POST',
@@ -38,6 +60,7 @@
         body: json
       });
       alert('CV import\u00e9');
+main
     });
 
     document.getElementById('preview').addEventListener('click', async () => {
@@ -49,7 +72,12 @@
 
     document.getElementById('export').addEventListener('click', () => {
       const theme = document.getElementById('theme').value;
+2ke2yw-codex/2025-06-05
+      const format = document.getElementById('format').value;
+      window.location = `/api/export?theme=${theme}&format=${format}&filename=resume`;
+
       window.location = `/api/export?theme=${theme}&format=pdf&filename=resume`;
+main
     });
   </script>
 </body>
