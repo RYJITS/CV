@@ -1,6 +1,6 @@
 # Gestion et export de CV
 
-Ce projet est une petite application permettant de gérer et d'exporter un CV. Un serveur Express expose une API pour générer des fichiers à partir d'un template, tandis qu'un client React interagit avec cette API.
+Cette application fournit une petite API HTTP (sans dépendance) pour générer un CV puis le télécharger ou l'afficher. Une page HTML simple permet d'importer votre fichier JSON et de prévisualiser le résultat.
 
 ## Installation
 
@@ -14,14 +14,13 @@ npm install
 npm run start
 ```
 
-- Lancer le client (Vite) :
-
-```bash
-npm run frontend
-```
+Ensuite ouvrez `http://localhost:5000` dans un navigateur pour accéder à l'interface.
 
 ## API
 
 ### `GET /api/export`
+Cette route prend en paramètre `theme`, `format` et `filename`. Elle exécute la commande `resume export` pour générer le fichier demandé (PDF ou HTML) avec le thème sélectionné. Ajoutez `inline=true` pour afficher le fichier directement dans le navigateur.
 
-Cette route prend en paramètre `theme`, `format` et `filename`. Elle exécute la commande `resume export` pour générer le fichier demandé (PDF ou HTML) avec le thème sélectionné, puis le renvoie en téléchargement.
+### `POST /api/upload`
+
+Envoyez un fichier JSON contenant votre CV. Il sera enregistré sous `resume.json` et utilisé lors des exports ultérieurs.

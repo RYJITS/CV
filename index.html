@@ -1,11 +1,68 @@
-
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Resume Manager</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Resume Manager</title>
+</head>
+<body>
+  <h1>Resume Manager</h1>
+  <input id="filename" placeholder="Nom du fichier" />
+  <select id="theme">
+    <option value="elegant">elegant</option>
+    <option value="caffeine">caffeine</option>
+  </select>
+  <button id="export-pdf">Exporter PDF</button>
+  <button id="export-html">Exporter HTML</button>
+  <button id="preview-pdf">Aperçu PDF</button>
+  <button id="preview-html">Aperçu HTML</button>
+  <input type="file" id="cv-file" accept="application/json" />
+  <button id="upload-json">Importer JSON</button>
+  <div style="margin-top:20px;">
+    <iframe id="preview" style="width:100%;height:600px;"></iframe>
+  </div>
+  <script>
+    async function exporter(format) {
+      const filename = document.getElementById('filename').value || 'cv';
+      const theme = document.getElementById('theme').value;
+      const res = await fetch(`/api/export?theme=${theme}&format=${format}&filename=${filename}`);
+      if (!res.ok) {
+        alert('Erreur: ' + await res.text());
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${filename}.${format}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    async function apercu(format) {
+      const filename = document.getElementById('filename').value || 'cv';
+      const theme = document.getElementById('theme').value;
+      const url = `/api/export?theme=${theme}&format=${format}&filename=${filename}&inline=true`;
+      document.getElementById('preview').src = url;
+    }
+    async function importer() {
+      const input = document.getElementById('cv-file');
+      if (!input.files[0]) {
+        alert('Choisissez un fichier JSON');
+        return;
+      }
+      const data = await input.files[0].text();
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: data
+      });
+      if (res.ok) alert('Import réussi');
+      else alert('Erreur lors de l\'import');
+    }
+    document.getElementById('export-pdf').onclick = () => exporter('pdf');
+    document.getElementById('export-html').onclick = () => exporter('html');
+    document.getElementById('preview-pdf').onclick = () => apercu('pdf');
+    document.getElementById('preview-html').onclick = () => apercu('html');
+    document.getElementById('upload-json').onclick = importer;
+  </script>
+</body>
 </html>
