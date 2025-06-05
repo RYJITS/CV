@@ -6,14 +6,39 @@
 </head>
 <body>
   <h1>Resume Manager</h1>
+  <input type="file" id="resume-file" accept="application/json" />
+  <button id="upload">Importer JSON</button>
   <input id="filename" placeholder="Nom du fichier" />
   <select id="theme">
     <option value="elegant">elegant</option>
     <option value="caffeine">caffeine</option>
   </select>
+  <button id="preview-html">Prévisualiser</button>
   <button id="export-pdf">Exporter PDF</button>
   <button id="export-html">Exporter HTML</button>
+  <div id="preview-container">
+    <iframe id="preview" style="width:100%;height:600px"></iframe>
+  </div>
   <script>
+    async function upload() {
+      const input = document.getElementById('resume-file');
+      if (!input.files.length) {
+        alert('Sélectionnez un fichier JSON');
+        return;
+      }
+      const text = await input.files[0].text();
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: text
+      });
+      if (!res.ok) {
+        alert('Erreur: ' + await res.text());
+        return;
+      }
+      alert('CV importé');
+    }
+
     async function exporter(format) {
       const filename = document.getElementById('filename').value || 'cv';
       const theme = document.getElementById('theme').value;
@@ -30,8 +55,15 @@
       a.click();
       URL.revokeObjectURL(url);
     }
+    function preview() {
+      const theme = document.getElementById('theme').value;
+      document.getElementById('preview').src = `/api/preview?theme=${theme}`;
+    }
+
+    document.getElementById('upload').onclick = upload;
     document.getElementById('export-pdf').onclick = () => exporter('pdf');
     document.getElementById('export-html').onclick = () => exporter('html');
+    document.getElementById('preview-html').onclick = preview;
   </script>
 </body>
 </html>

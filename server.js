@@ -21,7 +21,58 @@ function serveFile(res, filePath, contentType = 'text/html') {
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
 
-  if (parsedUrl.pathname === '/api/export') {
+  if (parsedUrl.pathname === '/api/upload' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        JSON.parse(body);
+        fs.writeFile(path.join(__dirname, 'resume.json'), body, err => {
+          if (err) {
+            res.writeHead(500);
+            return res.end("Erreur : impossible d'enregistrer le fichier");
+          }
+          res.writeHead(200);
+          res.end('OK');
+        });
+      } catch (e) {
+        res.writeHead(400);
+        res.end('JSON invalide');
+      }
+    });
+  } else if (parsedUrl.pathname === '/api/preview') {
+    const { theme } = parsedUrl.query;
+    const allowedThemes = ['elegant', 'caffeine'];
+    const safeTheme = allowedThemes.includes(theme) ? theme : null;
+    if (!safeTheme) {
+      res.writeHead(400);
+      return res.end('Paramètres invalides');
+    }
+    const resumePath = path.join(__dirname, 'resume.json');
+    fs.access(resumePath, fs.constants.F_OK, err => {
+      if (err) {
+        res.writeHead(400);
+        return res.end('Aucun CV importé');
+      }
+      const args = ['export', 'preview.html', '--theme', safeTheme];
+      const child = spawn('resume', args, { cwd: __dirname });
+      child.on('close', code => {
+        if (code !== 0) {
+          res.writeHead(500);
+          return res.end(`Erreur : code ${code}`);
+        }
+        const filePath = path.join(__dirname, 'preview.html');
+        fs.readFile(filePath, (err, data) => {
+          if (err) {
+            res.writeHead(500);
+            return res.end('Erreur : fichier non généré');
+          }
+          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.end(data);
+        });
+      });
+    });
+  } else if (parsedUrl.pathname === '/api/export') {
     const { theme, format, filename } = parsedUrl.query;
     const allowedThemes = ['elegant', 'caffeine'];
     const allowedFormats = ['pdf', 'html'];
@@ -35,26 +86,34 @@ const server = http.createServer((req, res) => {
       return res.end('Paramètres invalides');
     }
 
-    const args = ['export', `${safeFilename}.${safeFormat}`, '--theme', safeTheme];
-    const child = spawn('resume', args);
-
-    child.on('close', (code) => {
-      if (code !== 0) {
-        res.writeHead(500);
-        return res.end(`Erreur : code ${code}`);
+    const resumePath = path.join(__dirname, 'resume.json');
+    fs.access(resumePath, fs.constants.F_OK, err => {
+      if (err) {
+        res.writeHead(400);
+        return res.end('Aucun CV importé');
       }
 
-      const filePath = path.join(__dirname, `${safeFilename}.${safeFormat}`);
-      fs.access(filePath, fs.constants.F_OK, (err) => {
-        if (err) {
+      const args = ['export', `${safeFilename}.${safeFormat}`, '--theme', safeTheme];
+      const child = spawn('resume', args, { cwd: __dirname });
+
+      child.on('close', (code) => {
+        if (code !== 0) {
           res.writeHead(500);
-          return res.end('Erreur : fichier non généré');
+          return res.end(`Erreur : code ${code}`);
         }
-        res.writeHead(200, {
-          'Content-Type': safeFormat === 'pdf' ? 'application/pdf' : 'text/html',
-          'Content-Disposition': `attachment; filename="${safeFilename}.${safeFormat}"`
+
+        const filePath = path.join(__dirname, `${safeFilename}.${safeFormat}`);
+        fs.access(filePath, fs.constants.F_OK, (err) => {
+          if (err) {
+            res.writeHead(500);
+            return res.end('Erreur : fichier non généré');
+          }
+          res.writeHead(200, {
+            'Content-Type': safeFormat === 'pdf' ? 'application/pdf' : 'text/html',
+            'Content-Disposition': `attachment; filename="${safeFilename}.${safeFormat}"`
+          });
+          fs.createReadStream(filePath).pipe(res);
         });
-        fs.createReadStream(filePath).pipe(res);
       });
     });
   } else {
