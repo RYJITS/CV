@@ -4,8 +4,12 @@
   "description": "API Express pour exporter un CV",
   "main": "server.js",
   "scripts": {
+2ke2yw-codex/2025-06-05
     "start": "node server.js",
     "test": "echo \"No tests specified\""
+
+    "start": "node server.js"
+main
   },
   "dependencies": {
     "express": "^4.18.2",

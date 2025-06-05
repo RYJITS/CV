@@ -2,15 +2,22 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
+2ke2yw-codex/2025-06-05
 const multer = require('multer');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const upload = multer({ storage: multer.memoryStorage() });
 
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+main
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+2ke2yw-codex/2025-06-05
 app.post('/api/upload', upload.single('file'), (req, res) => {
   if (!req.file) {
     return res.status(400).send('Aucun fichier');
@@ -21,6 +28,19 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
       return res.status(500).send("Erreur lors de l'enregistrement");
     }
     res.json({ message: 'CV importé' });
+
+app.post('/api/upload', (req, res) => {
+  const data = req.body;
+  if (!data) {
+    return res.status(400).send('Aucun contenu');
+  }
+  fs.writeFile('resume.json', JSON.stringify(data, null, 2), err => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Erreur lors de l\'enregistrement');
+    }
+    res.json({ message: 'CV import\u00e9' });
+main
   });
 });
 
