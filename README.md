@@ -1,6 +1,6 @@
 # Gestion et export de CV
 
-Ce projet est une petite application permettant de gérer et d'exporter un CV. Un serveur Express expose une API pour générer des fichiers à partir d'un template, tandis qu'un client React interagit avec cette API.
+Cette application fournit une petite API Express pour générer un CV puis le télécharger. Une page HTML simple permet de lancer l'export directement depuis le navigateur.
 
 ## Installation
 
@@ -14,11 +14,7 @@ npm install
 npm run start
 ```
 
-- Lancer le client (Vite) :
-
-```bash
-npm run frontend
-```
+Ensuite ouvrez `http://localhost:5000` dans un navigateur pour accéder à l'interface.
 
 ## API
 
