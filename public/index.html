@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestion de CV</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    #result { margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <h1>Exporter mon CV</h1>
+  <form id="upload-form">
+    <input type="file" id="file" accept="application/json">
+    <button type="submit">Envoyer le JSON</button>
+  </form>
+
+  <div>
+    <label>Thème : </label>
+    <input type="text" id="theme" value="flat">
+  </div>
+
+  <div>
+    <label>Format :</label>
+    <select id="format">
+      <option value="pdf">PDF</option>
+      <option value="html">HTML</option>
+    </select>
+  </div>
+
+  <button id="preview">Prévisualiser</button>
+  <button id="export">Exporter</button>
+
+  <div id="result"></div>
+
+  <script>
+    const form = document.getElementById('upload-form');
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const file = document.getElementById('file').files[0];
+      if (!file) return;
+      const data = new FormData();
+      data.append('file', file);
+      await fetch('/api/upload', {
+        method: 'POST',
+        body: data
+      });
+      alert('CV importé');
+    });
+
+    document.getElementById('preview').addEventListener('click', async () => {
+      const theme = document.getElementById('theme').value;
+      const res = await fetch(`/api/preview?theme=${theme}`);
+      const html = await res.text();
+      document.getElementById('result').innerHTML = html;
+    });
+
+    document.getElementById('export').addEventListener('click', () => {
+      const theme = document.getElementById('theme').value;
+      const format = document.getElementById('format').value;
+      window.location = `/api/export?theme=${theme}&format=${format}&filename=resume`;
+    });
+  </script>
+</body>
+</html>
