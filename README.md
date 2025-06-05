@@ -1,9 +1,6 @@
 # Gestion et export de CV
 
-Cette application fournit une petite API Express pour générer un CV puis le télécharger. Une page HTML simple permet de lancer l'export directement depuis le navigateur.
-
-Cette version ajoute la possibilité d'importer un fichier JSON décrivant votre CV,
-de choisir un thème, de prévisualiser le rendu et d'exporter le tout en PDF ou HTML.
+Cette application fournit une API Express pour générer un CV puis le télécharger. Une interface web minimaliste permet d'importer un fichier JSON, de choisir un thème, de prévisualiser le rendu et d'exporter le CV en PDF ou HTML.
 
 ## Installation
 
@@ -11,19 +8,19 @@ de choisir un thème, de prévisualiser le rendu et d'exporter le tout en PDF ou
 npm install
 ```
 
-- Lancer le serveur :
+### Lancer le serveur
 
 ```bash
 npm run start
 ```
 
-Ensuite ouvrez `http://localhost:5000` dans un navigateur pour accéder à l'interface.
+Ouvrez ensuite `http://localhost:5000` dans un navigateur pour accéder à l'interface.
 
 ## API
 
 ### `GET /api/export`
 
-Cette route prend en paramètre `theme`, `format` et `filename`. Elle exécute la commande `resume export` pour générer le fichier demandé (PDF ou HTML) avec le thème sélectionné, puis le renvoie en téléchargement.
+Paramètres `theme`, `format` et `filename`. La route lance la commande `resume export` pour générer le fichier demandé (PDF ou HTML) avec le thème sélectionné, puis renvoie le fichier en téléchargement.
 
 ### `POST /api/upload`
 
@@ -31,4 +28,4 @@ Envoie le contenu d'un fichier JSON contenant votre CV. Le corps de la requête 
 
 ### `GET /api/preview`
 
-Prend un paramètre `theme` et renvoie une page HTML générée à partir du CV importé. Cette route est utilisée pour l'aperçu en ligne dans l'interface.
+Prend un paramètre `theme` et renvoie une page HTML générée à partir du CV importé. Cette route est utilisée pour l'aperçu dans l'interface web.
